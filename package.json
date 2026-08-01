@@ -1,0 +1,52 @@
+{
+  "name": "weeek-mcp",
+  "version": "0.1.0",
+  "description": "Read-only MCP server for Weeek Public API (tasks, projects, attachments, comments)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prod-broke-again/weeek-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "weeek",
+    "model-context-protocol"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "weeek-mcp": "./dist/bin/weeek-mcp.js"
+  },
+  "files": [
+    "dist",
+    "openapi",
+    "README.md"
+  ],
+  "scripts": {
+    "fetch:openapi": "node scripts/fetch-openapi.mjs",
+    "generate:dto": "openapi-typescript openapi/weeek.json -o src/infrastructure/weeek/dto/schema.ts",
+    "prebuild": "npm run generate:dto",
+    "build": "tsup",
+    "dev": "tsx src/bin/weeek-mcp.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "pino": "^9.6.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "openapi-typescript": "^7.6.1",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "undici": "^7.5.0",
+    "vitest": "^3.0.9"
+  },
+  "license": "MIT"
+}

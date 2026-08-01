@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "weeek": {
+      "command": "node",
+      "args": ["/absolute/path/to/weeek-mcp/dist/bin/weeek-mcp.js"],
+      "env": {
+        "WEEEK_API_TOKEN": "REPLACE_ME",
+        "WEEEK_DEFAULT_PROJECT_ID": "2",
+        "WEEEK_PROJECT_ALIASES": "main:2",
+        "WEEEK_READ_ONLY_PROJECTS": "2",
+        "WEEEK_ALLOW_WRITE": "false",
+        "WEEEK_LOG_LEVEL": "info"
+      }
+    }
+  }
+}
