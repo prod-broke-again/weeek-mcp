@@ -64,7 +64,8 @@ const directory = {
   })),
 } as unknown as DirectoryRepository;
 
-const config = { readOnlyProjects: [], writeProjects: [] } as unknown as Config;
+const config = { readOnlyProjects: [],
+  pendingWritesDir: '/tmp/weeek-pending', writeProjects: [] } as unknown as Config;
 
 describe("guarded write flow", () => {
   it("proposal only reads and does not mutate", async () => {

@@ -29,6 +29,7 @@ describe("loadConfig", () => {
     expect(resolveProjectId(cfg, "portal")).toBe(4);
     expect(resolveProjectId(cfg, undefined)).toBe(4);
     expect(cfg.sessionFilePath).toContain(".weeek-mcp");
+    expect(cfg.pendingWritesDir).toContain("pending-writes");
     expect(cfg.appBaseUrl).toBe("https://api.weeek.net");
   });
 

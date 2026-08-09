@@ -59,7 +59,11 @@ async function main(): Promise<void> {
   const directory = new WeeekDirectoryRepository(http, cache);
   const attachments = new WeeekAttachmentRepository(http, sizeGuard);
   const names = new NameResolver(directory, projects, logger);
-  const pendingWrites = new PendingWriteStore();
+  const pendingWrites = new PendingWriteStore(
+    10 * 60 * 1000,
+    Date.now,
+    config.allowWrite ? config.pendingWritesDir : undefined,
+  );
 
   const deps: AppDeps = {
     config,

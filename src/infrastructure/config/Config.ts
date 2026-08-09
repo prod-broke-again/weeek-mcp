@@ -7,6 +7,10 @@ export function defaultSessionFilePath(): string {
   return path.join(os.homedir(), ".weeek-mcp", "session.json");
 }
 
+export function defaultPendingWritesDir(sessionFilePath = defaultSessionFilePath()): string {
+  return path.join(path.dirname(sessionFilePath), "pending-writes");
+}
+
 const boolish = z
   .union([z.boolean(), z.string()])
   .transform((v) => {
@@ -73,6 +77,8 @@ export const ConfigSchema = z.object({
   downloadTimeoutMs: z.number().int().positive().default(30_000),
   maxRetries: z.number().int().nonnegative().default(3),
   sessionFilePath: z.string().min(1),
+  /** Directory for propose/confirm tokens (shared across HTTP/stateless workers). */
+  pendingWritesDir: z.string().min(1),
   /** Optional env override — used instead of/in addition to file */
   sessionCookie: z.string().optional(),
   sessionWorkspaceId: z.number().int().positive().optional(),
@@ -115,6 +121,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     rps: env.WEEEK_RPS ? Number(env.WEEEK_RPS) : 4,
     logLevel: env.WEEEK_LOG_LEVEL || "info",
     sessionFilePath: env.WEEEK_SESSION_FILE?.trim() || defaultSessionFilePath(),
+    pendingWritesDir:
+      env.WEEEK_PENDING_WRITES_DIR?.trim() ||
+      defaultPendingWritesDir(env.WEEEK_SESSION_FILE?.trim() || defaultSessionFilePath()),
     sessionCookie: env.WEEEK_SESSION_COOKIE?.trim() || undefined,
     sessionWorkspaceId: Number.isFinite(parsedWs) ? parsedWs : undefined,
   };

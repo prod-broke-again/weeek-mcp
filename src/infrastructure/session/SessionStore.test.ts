@@ -13,6 +13,7 @@ function cfg(sessionFilePath: string, over: Partial<Config> = {}): Config {
     projectAliases: {},
     readOnlyProjects: [],
   writeProjects: [],
+  pendingWritesDir: '/tmp/weeek-pending',
     allowWrite: false,
     maxAttachmentBytes: 1,
     cacheTtlSeconds: 1,

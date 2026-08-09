@@ -20,6 +20,7 @@ const config: Config = {
   projectAliases: {},
   readOnlyProjects: [],
   writeProjects: [],
+  pendingWritesDir: '/tmp/weeek-pending',
   allowWrite: false,
   maxAttachmentBytes: 1,
   cacheTtlSeconds: 1,

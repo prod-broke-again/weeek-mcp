@@ -21,6 +21,7 @@ function testConfig(over: Partial<Config> = {}): Config {
     projectAliases: {},
     readOnlyProjects: [],
   writeProjects: [],
+  pendingWritesDir: '/tmp/weeek-pending',
     allowWrite: false,
     maxAttachmentBytes: 8_388_608,
     cacheTtlSeconds: 300,

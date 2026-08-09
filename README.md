@@ -50,6 +50,7 @@ Copy `.env.example` and set at least `WEEEK_API_TOKEN`. Never commit `.env` or s
 | `WEEEK_BASE_URL` | no | `https://api.weeek.net/public/v1` | Public API |
 | `WEEEK_APP_BASE_URL` | no | `https://api.weeek.net` | Private app API host |
 | `WEEEK_SESSION_FILE` | no | `~/.weeek-mcp/session.json` | Browser session store |
+| `WEEEK_PENDING_WRITES_DIR` | no | `…/pending-writes` | Propose/confirm token store (required for HTTP gateways) |
 | `WEEEK_SESSION_COOKIE` | no | — | Optional cookie override |
 | `WEEEK_WORKSPACE_ID` | no | — | Needed if cookie string has no `workspace_id` |
 
@@ -110,7 +111,7 @@ Writes are hidden unless `WEEEK_ALLOW_WRITE=true`. Scope writes with `WEEEK_WRIT
 3. The agent shows the preview and waits.
 4. Only after a separate explicit “yes” does the agent call `weeek_confirm_write` with the single-use, expiring token.
 
-Agents must never create, edit, move, or delete tasks on their own initiative and must never infer confirmation.
+Pending tokens are stored under `WEEEK_PENDING_WRITES_DIR` so propose/confirm still works when each MCP HTTP request runs in a fresh process (stateless Streamable HTTP gateways).
 
 ## Task comments (browser session)
 
