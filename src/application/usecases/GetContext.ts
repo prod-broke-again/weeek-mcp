@@ -29,7 +29,14 @@ export class GetContext {
       `**User:** ${memberDisplayName(me)} <${me.email}> (\`${me.id}\`)`,
       `**Workspace:** ${workspace.title} (#${workspace.id})`,
       `**Default project:** ${this.config.defaultProjectId ?? "(not set — pass projectId or alias)"}`,
-      `**Whitelist:** ${this.config.readOnlyProjects.length ? this.config.readOnlyProjects.join(", ") : "(all visible projects)"}`,
+      `**Read whitelist:** ${this.config.readOnlyProjects.length ? this.config.readOnlyProjects.join(", ") : "(all visible projects)"}`,
+      `**Write whitelist:** ${
+        !this.config.allowWrite
+          ? "(writes disabled)"
+          : this.config.writeProjects.length
+            ? this.config.writeProjects.join(", ")
+            : "(any readable project)"
+      }`,
       `**Write tools:** ${this.config.allowWrite ? "enabled" : "disabled (WEEEK_ALLOW_WRITE=false)"}`,
       `**Session comments:** ${sessionComments}${sessionComments === "missing" ? " — call `weeek_auth_status`" : ""}`,
       `**Max attachment:** ${this.config.maxAttachmentBytes} bytes`,
@@ -60,6 +67,7 @@ export class GetContext {
         workspace: { id: workspace.id, title: workspace.title },
         defaultProjectId: this.config.defaultProjectId ?? null,
         readOnlyProjects: this.config.readOnlyProjects,
+        writeProjects: this.config.writeProjects,
         allowWrite: this.config.allowWrite,
         sessionComments,
         projects: projects.map((p) => ({

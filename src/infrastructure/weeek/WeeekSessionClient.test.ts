@@ -19,6 +19,7 @@ const config: Config = {
   appBaseUrl: "https://api.weeek.net",
   projectAliases: {},
   readOnlyProjects: [],
+  writeProjects: [],
   allowWrite: false,
   maxAttachmentBytes: 1,
   cacheTtlSeconds: 1,

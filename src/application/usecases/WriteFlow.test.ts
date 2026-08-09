@@ -64,7 +64,7 @@ const directory = {
   })),
 } as unknown as DirectoryRepository;
 
-const config = { readOnlyProjects: [] } as unknown as Config;
+const config = { readOnlyProjects: [], writeProjects: [] } as unknown as Config;
 
 describe("guarded write flow", () => {
   it("proposal only reads and does not mutate", async () => {
@@ -81,10 +81,10 @@ describe("guarded write flow", () => {
     expect(result.markdown).toContain("No change has been made");
   });
 
-  it("blocks writes outside the project whitelist", async () => {
+  it("blocks writes outside the read project whitelist", async () => {
     const tasks = taskRepository();
     const pending = new PendingWriteStore();
-    const blockedConfig = { readOnlyProjects: [99] } as unknown as Config;
+    const blockedConfig = { readOnlyProjects: [99], writeProjects: [] } as unknown as Config;
 
     await expect(
       new ProposeUpdateTask(tasks, blockedConfig, pending).execute({
@@ -92,6 +92,23 @@ describe("guarded write flow", () => {
         title: "New title",
       }),
     ).rejects.toThrow(/outside WEEEK_READ_ONLY_PROJECTS/);
+    expect(tasks.update).not.toHaveBeenCalled();
+  });
+
+  it("blocks writes outside the write project whitelist", async () => {
+    const tasks = taskRepository();
+    const pending = new PendingWriteStore();
+    const blockedConfig = {
+      readOnlyProjects: [2, 5],
+      writeProjects: [5],
+    } as unknown as Config;
+
+    await expect(
+      new ProposeUpdateTask(tasks, blockedConfig, pending).execute({
+        taskId: 42,
+        title: "New title",
+      }),
+    ).rejects.toThrow(/outside WEEEK_WRITE_PROJECTS/);
     expect(tasks.update).not.toHaveBeenCalled();
   });
 

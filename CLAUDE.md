@@ -38,7 +38,7 @@ As a client-side MCP server running over stdio, there is no separate database mi
 
 ## Project-Specific Rules & Prohibitions
 1. **Never commit secrets:** Never commit `.env`, `session.json`, or raw `WEEEK_API_TOKEN` strings.
-2. **Read-only by default:** Write tools are hidden unless `WEEEK_ALLOW_WRITE=true`. Every task mutation must use `weeek_propose_*` → separate explicit user confirmation → `weeek_confirm_write`; never mutate Weeek on an agent's own initiative.
+2. **Read-only by default:** Write tools are hidden unless `WEEEK_ALLOW_WRITE=true`. Scope mutations with `WEEEK_WRITE_PROJECTS` independently of the read whitelist (`WEEEK_READ_ONLY_PROJECTS`). Every task mutation must use `weeek_propose_*` → separate explicit user confirmation → `weeek_confirm_write`; never mutate Weeek on an agent's own initiative.
 3. **Stderr logging only:** Log output must ONLY go to `stderr` (`pino` configured accordingly). Writing to `stdout` breaks the JSON-RPC stdio protocol of MCP.
 4. **DTO generation discipline:** Do not manually edit `src/infrastructure/weeek/dto/schema.ts`. Always update `openapi/weeek.json` and run `npm run generate:dto`.
 5. **Always typecheck and test before PRs:** Run `npm run typecheck` and `npm test` before committing changes.

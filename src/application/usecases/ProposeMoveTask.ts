@@ -3,8 +3,8 @@ import type { TaskRepository } from "../../domain/ports/TaskRepository.js";
 import type { ProjectRepository } from "../../domain/ports/ProjectRepository.js";
 import type { Config } from "../../infrastructure/config/Config.js";
 import type { PendingWriteStore } from "../../infrastructure/write/PendingWriteStore.js";
-import { assertProjectAllowed, resolveProjectId } from "../../infrastructure/config/Config.js";
-import { assertTaskAllowed, describeColumn } from "./writeHelpers.js";
+import { assertProjectWritable, resolveProjectId } from "../../infrastructure/config/Config.js";
+import { assertTaskWritable, describeColumn } from "./writeHelpers.js";
 
 export interface ProposeMoveTaskInput {
   taskId: number;
@@ -30,13 +30,13 @@ export class ProposeMoveTask {
       throw new DomainError("VALIDATION", "Provide project, boardId, or boardColumnId.");
     }
     const task = await this.tasks.byId(input.taskId);
-    assertTaskAllowed(this.config, task);
+    assertTaskWritable(this.config, task);
     const projectId =
       resolveProjectId(this.config, input.project) ?? task.locations[0]?.projectId;
     if (projectId === undefined) {
       throw new DomainError("VALIDATION", "Cannot infer target project; pass project explicitly.");
     }
-    assertProjectAllowed(this.config, projectId);
+    assertProjectWritable(this.config, projectId);
     const names = await describeColumn(this.projects, projectId, input.boardColumnId);
     if (input.boardId !== undefined) {
       const board = (await this.projects.boards(projectId)).find((item) => item.id === input.boardId);

@@ -3,7 +3,7 @@ import type { TaskRepository } from "../../domain/ports/TaskRepository.js";
 import type { PendingWriteStore } from "../../infrastructure/write/PendingWriteStore.js";
 import type { UpdateTaskInput } from "../../domain/task/write.js";
 import type { Config } from "../../infrastructure/config/Config.js";
-import { assertDateModes, assertTaskAllowed, formatValue } from "./writeHelpers.js";
+import { assertDateModes, assertTaskWritable, formatValue } from "./writeHelpers.js";
 
 export interface ProposeUpdateTaskInput extends UpdateTaskInput {
   taskId: number;
@@ -23,7 +23,7 @@ export class ProposeUpdateTask {
       throw new DomainError("VALIDATION", "At least one task field must be provided.");
     }
     const task = await this.tasks.byId(taskId);
-    assertTaskAllowed(this.config, task);
+    assertTaskWritable(this.config, task);
     const changeLines = Object.entries(changes).map(
       ([key, value]) => `- ${key}: ${formatValue(value)}`,
     );

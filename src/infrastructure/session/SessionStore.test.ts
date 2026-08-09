@@ -12,6 +12,7 @@ function cfg(sessionFilePath: string, over: Partial<Config> = {}): Config {
     appBaseUrl: "https://api.weeek.net",
     projectAliases: {},
     readOnlyProjects: [],
+  writeProjects: [],
     allowWrite: false,
     maxAttachmentBytes: 1,
     cacheTtlSeconds: 1,

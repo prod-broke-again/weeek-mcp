@@ -20,6 +20,7 @@ function testConfig(over: Partial<Config> = {}): Config {
     appBaseUrl: "https://api.weeek.net",
     projectAliases: {},
     readOnlyProjects: [],
+  writeProjects: [],
     allowWrite: false,
     maxAttachmentBytes: 8_388_608,
     cacheTtlSeconds: 300,

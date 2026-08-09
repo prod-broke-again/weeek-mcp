@@ -1,7 +1,7 @@
 import type { TaskRepository } from "../../domain/ports/TaskRepository.js";
 import type { PendingWriteStore } from "../../infrastructure/write/PendingWriteStore.js";
 import type { Config } from "../../infrastructure/config/Config.js";
-import { assertTaskAllowed } from "./writeHelpers.js";
+import { assertTaskWritable } from "./writeHelpers.js";
 
 export class ProposeDeleteTask {
   constructor(
@@ -12,7 +12,7 @@ export class ProposeDeleteTask {
 
   async execute(input: { taskId: number }) {
     const task = await this.tasks.byId(input.taskId);
-    assertTaskAllowed(this.config, task);
+    assertTaskWritable(this.config, task);
     const preview = [
       `# Pending deletion of Weeek task #${task.id}`,
       `- Title: ${task.title}`,

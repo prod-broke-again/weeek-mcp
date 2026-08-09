@@ -40,7 +40,8 @@ Copy `.env.example` and set at least `WEEEK_API_TOKEN`. Never commit `.env` or s
 | `WEEEK_API_TOKEN` | yes | — | Workspace API token |
 | `WEEEK_DEFAULT_PROJECT_ID` | no | — | Used when tools omit `projectId` |
 | `WEEEK_PROJECT_ALIASES` | no | — | e.g. `portal:4,ecd:7` |
-| `WEEEK_READ_ONLY_PROJECTS` | no | all | Whitelist of project ids |
+| `WEEEK_READ_ONLY_PROJECTS` | no | all | Read whitelist of project ids |
+| `WEEEK_WRITE_PROJECTS` | no | any readable | Write whitelist (requires `WEEEK_ALLOW_WRITE`) |
 | `WEEEK_ALLOW_WRITE` | no | `false` | Expose guarded task write tools |
 | `WEEEK_MAX_ATTACHMENT_BYTES` | no | `8388608` | 8 MiB |
 | `WEEEK_CACHE_TTL_SECONDS` | no | `300` | Directory/project cache |
@@ -65,7 +66,9 @@ Example Cursor MCP config (`~/.cursor/mcp.json` or project `.cursor/mcp.json`):
       "env": {
         "WEEEK_API_TOKEN": "your-token",
         "WEEEK_DEFAULT_PROJECT_ID": "2",
-        "WEEEK_READ_ONLY_PROJECTS": "2"
+        "WEEEK_READ_ONLY_PROJECTS": "2,5",
+        "WEEEK_WRITE_PROJECTS": "5",
+        "WEEEK_ALLOW_WRITE": "true"
       }
     }
   }
@@ -100,7 +103,7 @@ Typical flow: `context` → (`auth_status` / `session_import` if needed) → `se
 
 ### Guarded writes
 
-Writes are hidden unless `WEEEK_ALLOW_WRITE=true`. Enabling the flag does not permit autonomous changes:
+Writes are hidden unless `WEEEK_ALLOW_WRITE=true`. Scope writes with `WEEEK_WRITE_PROJECTS` (independent of the read whitelist). Enabling the flag does not permit autonomous changes:
 
 1. The user explicitly asks for one exact change.
 2. The agent calls the matching `weeek_propose_*` tool. This validates the payload but does not mutate Weeek.

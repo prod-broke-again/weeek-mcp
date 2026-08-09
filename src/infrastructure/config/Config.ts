@@ -60,7 +60,10 @@ export const ConfigSchema = z.object({
   appBaseUrl: z.string().url().default("https://api.weeek.net"),
   defaultProjectId: z.number().int().positive().optional(),
   projectAliases: z.record(z.string(), z.number()).default({}),
+  /** Read whitelist (env WEEEK_READ_ONLY_PROJECTS). Empty = all visible projects. */
   readOnlyProjects: z.array(z.number()).default([]),
+  /** Write whitelist (env WEEEK_WRITE_PROJECTS). Empty = any readable project when allowWrite. */
+  writeProjects: z.array(z.number()).default([]),
   allowWrite: z.boolean().default(false),
   maxAttachmentBytes: z.number().int().positive().default(8_388_608),
   cacheTtlSeconds: z.number().int().nonnegative().default(300),
@@ -84,9 +87,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   let projectAliases: Record<string, number>;
   let readOnlyProjects: number[];
+  let writeProjects: number[];
   try {
     projectAliases = aliases.parse(env.WEEEK_PROJECT_ALIASES);
     readOnlyProjects = intList.parse(env.WEEEK_READ_ONLY_PROJECTS);
+    writeProjects = intList.parse(env.WEEEK_WRITE_PROJECTS);
   } catch (err) {
     throw new DomainError("CONFIG", err instanceof Error ? err.message : String(err));
   }
@@ -101,6 +106,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     defaultProjectId: Number.isFinite(parsedDefault) ? parsedDefault : undefined,
     projectAliases,
     readOnlyProjects,
+    writeProjects,
     allowWrite: env.WEEEK_ALLOW_WRITE !== undefined ? boolish.parse(env.WEEEK_ALLOW_WRITE) : false,
     maxAttachmentBytes: env.WEEEK_MAX_ATTACHMENT_BYTES
       ? Number(env.WEEEK_MAX_ATTACHMENT_BYTES)
@@ -146,6 +152,18 @@ export function assertProjectAllowed(config: Config, projectId: number): void {
     throw new DomainError(
       "FORBIDDEN",
       `Project ${projectId} is outside WEEEK_READ_ONLY_PROJECTS whitelist (${config.readOnlyProjects.join(", ")}).`,
+    );
+  }
+}
+
+/** Readable + (when configured) in WEEEK_WRITE_PROJECTS. */
+export function assertProjectWritable(config: Config, projectId: number): void {
+  assertProjectAllowed(config, projectId);
+  if (config.writeProjects.length === 0) return;
+  if (!config.writeProjects.includes(projectId)) {
+    throw new DomainError(
+      "FORBIDDEN",
+      `Project ${projectId} is outside WEEEK_WRITE_PROJECTS whitelist (${config.writeProjects.join(", ")}).`,
     );
   }
 }

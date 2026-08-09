@@ -15,7 +15,7 @@ function actionableMessage(err: DomainError): string {
     case "UNAUTHORIZED":
       return "Unauthorized (401). Check WEEEK_API_TOKEN — create/regenerate it in workspace settings → API.";
     case "FORBIDDEN":
-      return err.message.includes("WEEEK_READ_ONLY")
+      return err.message.includes("WEEEK_READ_ONLY") || err.message.includes("WEEEK_WRITE_PROJECTS")
         ? err.message
         : `Forbidden (403). The token creator has no access. ${err.message}`;
     case "NOT_FOUND":

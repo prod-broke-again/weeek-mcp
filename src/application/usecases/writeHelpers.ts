@@ -1,6 +1,10 @@
 import { DomainError } from "../../domain/shared/errors.js";
 import type { Config } from "../../infrastructure/config/Config.js";
-import { assertProjectAllowed, resolveProjectId } from "../../infrastructure/config/Config.js";
+import {
+  assertProjectAllowed,
+  assertProjectWritable,
+  resolveProjectId,
+} from "../../infrastructure/config/Config.js";
 import type { ProjectRepository } from "../../domain/ports/ProjectRepository.js";
 import type { Task } from "../../domain/task/entities.js";
 
@@ -12,7 +16,7 @@ export function requireProjectId(config: Config, input?: number | string): numbe
       "Project is required. Pass projectId/project alias or configure WEEEK_DEFAULT_PROJECT_ID.",
     );
   }
-  assertProjectAllowed(config, projectId);
+  assertProjectWritable(config, projectId);
   return projectId;
 }
 
@@ -37,7 +41,8 @@ export function assertDateModes(input: {
   }
 }
 
-export function assertTaskAllowed(config: Config, task: Task): void {
+/** Task must be readable (all locations) — used when inspecting cards. */
+export function assertTaskReadable(config: Config, task: Task): void {
   if (config.readOnlyProjects.length === 0) return;
   if (task.locations.length === 0) {
     throw new DomainError(
@@ -48,6 +53,24 @@ export function assertTaskAllowed(config: Config, task: Task): void {
   for (const location of task.locations) {
     assertProjectAllowed(config, location.projectId);
   }
+}
+
+/** Task must be writable in every location — used by propose_* mutations. */
+export function assertTaskWritable(config: Config, task: Task): void {
+  if (task.locations.length === 0) {
+    throw new DomainError(
+      "FORBIDDEN",
+      `Task ${task.id} has no project location, so it cannot be checked against WEEEK_WRITE_PROJECTS.`,
+    );
+  }
+  for (const location of task.locations) {
+    assertProjectWritable(config, location.projectId);
+  }
+}
+
+/** @deprecated Use assertTaskWritable for mutations. */
+export function assertTaskAllowed(config: Config, task: Task): void {
+  assertTaskWritable(config, task);
 }
 
 export async function describeColumn(
