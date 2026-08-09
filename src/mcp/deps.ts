@@ -14,6 +14,11 @@ import type { ReadAttachment } from "../application/usecases/ReadAttachment.js";
 import type { GetAuthStatus } from "../application/usecases/GetAuthStatus.js";
 import type { ImportSession } from "../application/usecases/ImportSession.js";
 import type { GetTaskComments } from "../application/usecases/GetTaskComments.js";
+import type { ProposeCreateTask } from "../application/usecases/ProposeCreateTask.js";
+import type { ProposeUpdateTask } from "../application/usecases/ProposeUpdateTask.js";
+import type { ProposeMoveTask } from "../application/usecases/ProposeMoveTask.js";
+import type { ProposeDeleteTask } from "../application/usecases/ProposeDeleteTask.js";
+import type { ConfirmWrite } from "../application/usecases/ConfirmWrite.js";
 
 export interface AppDeps {
   config: Config;
@@ -32,4 +37,9 @@ export interface AppDeps {
   listMembers: ListMembers;
   listTags: ListTags;
   readAttachment: ReadAttachment;
+  proposeCreateTask: ProposeCreateTask;
+  proposeUpdateTask: ProposeUpdateTask;
+  proposeMoveTask: ProposeMoveTask;
+  proposeDeleteTask: ProposeDeleteTask;
+  confirmWrite: ConfirmWrite;
 }

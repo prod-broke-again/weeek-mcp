@@ -52,9 +52,31 @@ const names = {
   resolveColumns: async () => ({ 8: "В работе" }),
 } as unknown as NameResolver;
 
+const unusedWriteMethods = {
+  create: async () => {
+    throw new Error("should not call");
+  },
+  update: async () => {
+    throw new Error("should not call");
+  },
+  delete: async () => {
+    throw new Error("should not call");
+  },
+  setBoard: async () => {
+    throw new Error("should not call");
+  },
+  setBoardColumn: async () => {
+    throw new Error("should not call");
+  },
+  addLocation: async () => {
+    throw new Error("should not call");
+  },
+};
+
 describe("GetTask comments enrichment", () => {
   it("notes missing session without failing", async () => {
     const tasks: TaskRepository = {
+      ...unusedWriteMethods,
       find: async () => ({ items: [], hasMore: false, offset: 0, perPage: 30 }),
       byId: async () => sampleTask,
       tree: async () => ({ task: sampleTask, children: [] }),
@@ -74,6 +96,7 @@ describe("GetTask comments enrichment", () => {
 
   it("appends comments when session ready", async () => {
     const tasks: TaskRepository = {
+      ...unusedWriteMethods,
       find: async () => ({ items: [], hasMore: false, offset: 0, perPage: 30 }),
       byId: async () => sampleTask,
       tree: async () => ({ task: sampleTask, children: [] }),

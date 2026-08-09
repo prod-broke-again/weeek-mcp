@@ -1,6 +1,12 @@
 import type { TaskRepository } from "../../../domain/ports/TaskRepository.js";
 import type { Task, TaskFilter, TaskPage, TaskTreeNode } from "../../../domain/task/entities.js";
 import type { TaskId } from "../../../domain/shared/types.js";
+import type { BoardColumnId, BoardId } from "../../../domain/shared/types.js";
+import type {
+  AddTaskLocationInput,
+  CreateTaskInput,
+  UpdateTaskInput,
+} from "../../../domain/task/write.js";
 import { DomainError } from "../../../domain/shared/errors.js";
 import type { WeeekHttpClient } from "../WeeekHttpClient.js";
 import { mapTask } from "../mappers/taskMapper.js";
@@ -39,6 +45,57 @@ export class WeeekTaskRepository implements TaskRepository {
       }
       throw err;
     }
+  }
+
+  async create(input: CreateTaskInput): Promise<Task> {
+    const dto = await this.http.request<unknown>(tasksList.path, {
+      method: "POST",
+      body: input,
+      envelopeKey: "task",
+      noRetry: true,
+    });
+    return mapTask(dto);
+  }
+
+  async update(id: TaskId, input: UpdateTaskInput): Promise<Task> {
+    const ep = taskById(id);
+    const dto = await this.http.request<unknown>(ep.path, {
+      method: "PUT",
+      body: input,
+      envelopeKey: ep.envelopeKey,
+    });
+    return mapTask(dto);
+  }
+
+  async delete(id: TaskId): Promise<void> {
+    await this.http.request(taskById(id).path, {
+      method: "DELETE",
+      noRetry: true,
+    });
+  }
+
+  async setBoard(id: TaskId, boardId: BoardId): Promise<void> {
+    await this.http.request(`/tm/tasks/${id}/board`, {
+      method: "POST",
+      body: { boardId },
+      noRetry: true,
+    });
+  }
+
+  async setBoardColumn(id: TaskId, boardColumnId: BoardColumnId): Promise<void> {
+    await this.http.request(`/tm/tasks/${id}/board-column`, {
+      method: "POST",
+      body: { boardColumnId },
+      noRetry: true,
+    });
+  }
+
+  async addLocation(id: TaskId, input: AddTaskLocationInput): Promise<void> {
+    await this.http.request(`/tm/tasks/${id}/locations`, {
+      method: "POST",
+      body: input,
+      noRetry: true,
+    });
   }
 
   async tree(id: TaskId, depth: number): Promise<TaskTreeNode> {

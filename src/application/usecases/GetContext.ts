@@ -34,6 +34,11 @@ export class GetContext {
       `**Session comments:** ${sessionComments}${sessionComments === "missing" ? " — call `weeek_auth_status`" : ""}`,
       `**Max attachment:** ${this.config.maxAttachmentBytes} bytes`,
       "",
+      "## Write policy",
+      "- Never create, edit, move, or delete a task unless the user explicitly asked for that exact change.",
+      "- Write flow is always: `weeek_propose_*` → show preview → wait for explicit user confirmation → `weeek_confirm_write`.",
+      "- Never call `weeek_confirm_write` on your own initiative. Tokens are single-use and expire.",
+      "",
       "## API limits (honest)",
       "- Task comments: via browser session only (not Public API)",
       "- No Weeek Docs / Wiki in Public API — only task attachments",
@@ -69,6 +74,7 @@ export class GetContext {
           attachments: true,
           write: this.config.allowWrite,
         },
+        writeFlow: "propose_confirm",
       },
     };
   }

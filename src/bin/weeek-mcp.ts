@@ -29,6 +29,12 @@ import { ReadAttachment } from "../application/usecases/ReadAttachment.js";
 import { createMcpServer } from "../mcp/server.js";
 import type { AppDeps } from "../mcp/deps.js";
 import { DomainError } from "../domain/shared/errors.js";
+import { PendingWriteStore } from "../infrastructure/write/PendingWriteStore.js";
+import { ProposeCreateTask } from "../application/usecases/ProposeCreateTask.js";
+import { ProposeUpdateTask } from "../application/usecases/ProposeUpdateTask.js";
+import { ProposeMoveTask } from "../application/usecases/ProposeMoveTask.js";
+import { ProposeDeleteTask } from "../application/usecases/ProposeDeleteTask.js";
+import { ConfirmWrite } from "../application/usecases/ConfirmWrite.js";
 
 async function main(): Promise<void> {
   let config;
@@ -53,6 +59,7 @@ async function main(): Promise<void> {
   const directory = new WeeekDirectoryRepository(http, cache);
   const attachments = new WeeekAttachmentRepository(http, sizeGuard);
   const names = new NameResolver(directory, projects, logger);
+  const pendingWrites = new PendingWriteStore();
 
   const deps: AppDeps = {
     config,
@@ -71,6 +78,11 @@ async function main(): Promise<void> {
     listMembers: new ListMembers(directory),
     listTags: new ListTags(directory),
     readAttachment: new ReadAttachment(attachments),
+    proposeCreateTask: new ProposeCreateTask(projects, config, pendingWrites),
+    proposeUpdateTask: new ProposeUpdateTask(tasks, config, pendingWrites),
+    proposeMoveTask: new ProposeMoveTask(tasks, projects, config, pendingWrites),
+    proposeDeleteTask: new ProposeDeleteTask(tasks, config, pendingWrites),
+    confirmWrite: new ConfirmWrite(tasks, directory, pendingWrites),
   };
 
   const server = createMcpServer(deps);

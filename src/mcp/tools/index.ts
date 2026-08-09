@@ -14,6 +14,11 @@ import { createListMembersTool } from "./listMembers.js";
 import { createListTagsTool } from "./listTags.js";
 import { createAuthStatusTool } from "./authStatus.js";
 import { createSessionImportTool } from "./sessionImport.js";
+import { createProposeCreateTaskTool } from "./proposeCreateTask.js";
+import { createProposeUpdateTaskTool } from "./proposeUpdateTask.js";
+import { createProposeMoveTaskTool } from "./proposeMoveTask.js";
+import { createProposeDeleteTaskTool } from "./proposeDeleteTask.js";
+import { createConfirmWriteTool } from "./confirmWrite.js";
 
 export function registerAllTools(registry: ToolRegistry, deps: AppDeps): void {
   const tools = [
@@ -31,6 +36,11 @@ export function registerAllTools(registry: ToolRegistry, deps: AppDeps): void {
     createReadAttachmentTool(deps),
     createListMembersTool(deps),
     createListTagsTool(deps),
+    createProposeCreateTaskTool(deps),
+    createProposeUpdateTaskTool(deps),
+    createProposeMoveTaskTool(deps),
+    createProposeDeleteTaskTool(deps),
+    createConfirmWriteTool(deps),
   ];
   for (const tool of tools) registry.register(tool);
 }

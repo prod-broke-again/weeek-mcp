@@ -1,13 +1,14 @@
 # weeek-mcp
 
-Read-only [MCP](https://modelcontextprotocol.io/) server for the [Weeek Public API](https://developers.weeek.net/). Use it from Cursor or Claude Code to browse projects, search tasks, read attachments, and (with a browser session) load task comments.
+[MCP](https://modelcontextprotocol.io/) server for the [Weeek Public API](https://developers.weeek.net/). Read tools browse projects, search tasks, read attachments, and (with a browser session) load task comments. Opt-in write tools use mandatory propose → user confirmation → confirm flow.
 
 ## Features
 
 | Can | Cannot |
 |-----|--------|
 | Projects, boards, columns, tasks | Weeek Docs / Wiki (not in Public API) |
-| Search / filter tasks, my open tasks | Writes (not shipped; opt-in later) |
+| Search / filter tasks, my open tasks | Unconfirmed or autonomous writes |
+| Opt-in task create/edit/move/delete | |
 | Members & tags | PDF/DOCX text extract (v1: URL / text files only) |
 | Attachments: images + txt/md/json/csv | |
 | **Task comments** via imported browser session | Comments are **not** in Public API |
@@ -40,7 +41,7 @@ Copy `.env.example` and set at least `WEEEK_API_TOKEN`. Never commit `.env` or s
 | `WEEEK_DEFAULT_PROJECT_ID` | no | — | Used when tools omit `projectId` |
 | `WEEEK_PROJECT_ALIASES` | no | — | e.g. `portal:4,ecd:7` |
 | `WEEEK_READ_ONLY_PROJECTS` | no | all | Whitelist of project ids |
-| `WEEEK_ALLOW_WRITE` | no | `false` | Write tools not shipped in v1 |
+| `WEEEK_ALLOW_WRITE` | no | `false` | Expose guarded task write tools |
 | `WEEEK_MAX_ATTACHMENT_BYTES` | no | `8388608` | 8 MiB |
 | `WEEEK_CACHE_TTL_SECONDS` | no | `300` | Directory/project cache |
 | `WEEEK_RPS` | no | `4` | Client-side rate limit |
@@ -89,8 +90,24 @@ More examples: [`examples/mcp.cursor.json`](./examples/mcp.cursor.json), [`examp
 12. `weeek_read_attachment`
 13. `weeek_list_members`
 14. `weeek_list_tags`
+15. `weeek_propose_create_task`
+16. `weeek_propose_update_task`
+17. `weeek_propose_move_task`
+18. `weeek_propose_delete_task`
+19. `weeek_confirm_write` — only after a separate explicit user confirmation
 
 Typical flow: `context` → (`auth_status` / `session_import` if needed) → `search_tasks` → `get_task` → `read_attachment`.
+
+### Guarded writes
+
+Writes are hidden unless `WEEEK_ALLOW_WRITE=true`. Enabling the flag does not permit autonomous changes:
+
+1. The user explicitly asks for one exact change.
+2. The agent calls the matching `weeek_propose_*` tool. This validates the payload but does not mutate Weeek.
+3. The agent shows the preview and waits.
+4. Only after a separate explicit “yes” does the agent call `weeek_confirm_write` with the single-use, expiring token.
+
+Agents must never create, edit, move, or delete tasks on their own initiative and must never infer confirmation.
 
 ## Task comments (browser session)
 
