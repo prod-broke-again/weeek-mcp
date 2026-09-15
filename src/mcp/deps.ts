@@ -14,6 +14,7 @@ import type { ReadAttachment } from "../application/usecases/ReadAttachment.js";
 import type { GetAuthStatus } from "../application/usecases/GetAuthStatus.js";
 import type { ImportSession } from "../application/usecases/ImportSession.js";
 import type { GetTaskComments } from "../application/usecases/GetTaskComments.js";
+import type { GetProjectDocuments } from "../application/usecases/GetProjectDocuments.js";
 import type { ProposeCreateTask } from "../application/usecases/ProposeCreateTask.js";
 import type { ProposeUpdateTask } from "../application/usecases/ProposeUpdateTask.js";
 import type { ProposeMoveTask } from "../application/usecases/ProposeMoveTask.js";
@@ -31,6 +32,7 @@ export interface AppDeps {
   searchTasks: SearchTasks;
   getTask: GetTask;
   getTaskComments: GetTaskComments;
+  getProjectDocuments: GetProjectDocuments;
   getTaskTree: GetTaskTree;
   getBoardSnapshot: GetBoardSnapshot;
   getMyTasks: GetMyTasks;

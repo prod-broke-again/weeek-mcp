@@ -76,4 +76,62 @@ describe("WeeekSessionClient", () => {
       }),
     ).rejects.toBeInstanceOf(HttpError);
   });
+
+  it("fetches project documents with getProjectDocuments", async () => {
+    previous = getGlobalDispatcher();
+    agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+    const pool = agent.get("https://api.weeek.net");
+    pool
+      .intercept({ path: "/ws/846240/tm/projects/2/documents", method: "GET" })
+      .reply(200, {
+        success: true,
+        sections: {
+          document: {
+            documents: [{ id: 10, projectId: 2, name: "Doc 10" }],
+          },
+        },
+      });
+
+    const client = new WeeekSessionClient(config, silentLogger);
+    const result = await client.getProjectDocuments<{
+      sections: { document: { documents: Array<{ id: number }> } };
+    }>(846240, 2, {
+      workspaceId: 846240,
+      cookie: "weeek_session=abc",
+    });
+
+    expect(result.sections.document.documents[0]?.id).toBe(10);
+  });
+
+  it("standalone fetchProjectDocuments executes GET and returns documents", async () => {
+    previous = getGlobalDispatcher();
+    agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+    const pool = agent.get("https://api.weeek.net");
+    pool
+      .intercept({ path: "/ws/846240/tm/projects/2/documents", method: "GET" })
+      .reply(200, {
+        success: true,
+        sections: {
+          document: {
+            documents: [{ id: 42, projectId: 2, name: "Test Doc" }],
+          },
+        },
+      });
+
+    const { fetchProjectDocuments } = await import("./WeeekSessionClient.js");
+    const result = await fetchProjectDocuments<{
+      sections: { document: { documents: Array<{ id: number }> } };
+    }>({
+      workspaceId: 846240,
+      projectId: 2,
+      cookie: "weeek_session=abc; remember_app_x=123",
+    });
+
+    expect(result.sections.document.documents[0]?.id).toBe(42);
+  });
 });
+

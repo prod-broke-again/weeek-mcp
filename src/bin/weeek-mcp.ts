@@ -10,6 +10,7 @@ import { WeeekProjectRepository } from "../infrastructure/weeek/repositories/Wee
 import { WeeekDirectoryRepository } from "../infrastructure/weeek/repositories/WeeekDirectoryRepository.js";
 import { WeeekAttachmentRepository } from "../infrastructure/weeek/repositories/WeeekAttachmentRepository.js";
 import { WeeekSessionCommentRepository } from "../infrastructure/weeek/repositories/WeeekSessionCommentRepository.js";
+import { WeeekSessionDocumentRepository } from "../infrastructure/weeek/repositories/WeeekSessionDocumentRepository.js";
 import { SizeGuard } from "../infrastructure/files/SizeGuard.js";
 import { NameResolver } from "../application/enrichment/NameResolver.js";
 import { GetContext } from "../application/usecases/GetContext.js";
@@ -20,6 +21,7 @@ import { GetProjectOverview } from "../application/usecases/GetProjectOverview.j
 import { SearchTasks } from "../application/usecases/SearchTasks.js";
 import { GetTask } from "../application/usecases/GetTask.js";
 import { GetTaskComments } from "../application/usecases/GetTaskComments.js";
+import { GetProjectDocuments } from "../application/usecases/GetProjectDocuments.js";
 import { GetTaskTree } from "../application/usecases/GetTaskTree.js";
 import { GetBoardSnapshot } from "../application/usecases/GetBoardSnapshot.js";
 import { GetMyTasks } from "../application/usecases/GetMyTasks.js";
@@ -52,6 +54,7 @@ async function main(): Promise<void> {
   const sessionStore = new SessionStore(config);
   const sessionClient = new WeeekSessionClient(config, logger);
   const sessionComments = new WeeekSessionCommentRepository(sessionStore, sessionClient, logger);
+  const sessionDocuments = new WeeekSessionDocumentRepository(sessionStore, sessionClient, logger);
   const sizeGuard = new SizeGuard(config.maxAttachmentBytes);
 
   const tasks = new WeeekTaskRepository(http);
@@ -76,6 +79,7 @@ async function main(): Promise<void> {
     searchTasks: new SearchTasks(tasks, config, names),
     getTask: new GetTask(tasks, names, sessionComments, logger),
     getTaskComments: new GetTaskComments(sessionComments, sessionStore),
+    getProjectDocuments: new GetProjectDocuments(sessionDocuments, sessionComments, sessionStore),
     getTaskTree: new GetTaskTree(tasks, names),
     getBoardSnapshot: new GetBoardSnapshot(projects, tasks, config, names),
     getMyTasks: new GetMyTasks(directory, tasks, config, names),

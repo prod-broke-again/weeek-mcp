@@ -1,0 +1,76 @@
+---
+description: TypeScript, Node.js, and MCP tool development standards
+globs: ["**/*.ts"]
+alwaysApply: false
+---
+
+# TypeScript & MCP Development Standards
+
+## Language & Module Conventions
+- **Module System:** ESM (`"type": "module"` in `package.json`).
+- **NodeNext Resolution:** Relative imports in `.ts` files MUST include the `.js` extension (e.g., `import { loadConfig } from "../infrastructure/config/Config.js";`).
+- **Strict Typing:**
+  - `strict: true` and `noUncheckedIndexedAccess: true` enabled in `tsconfig.json`.
+  - Always handle `undefined` when indexing arrays or objects.
+  - Use explicit type annotations for function parameters and return types where inference is not obvious.
+  - Prefer `type` over `interface` unless extending objects.
+
+## Architecture Layers
+1. **Domain (`src/domain/`)**
+   - Pure domain models, value objects, domain error classes (`DomainError`), and repository interfaces.
+   - Zero dependencies on external HTTP frameworks, MCP SDK, or Pino.
+2. **Application (`src/application/`)**
+   - Use cases encapsulating business orchestration (e.g. `SearchTasks`, `GetTask`, `ImportSession`).
+   - Helpers like `NameResolver` for resolving IDs to human-readable names.
+3. **Infrastructure (`src/infrastructure/`)**
+   - External API integration (`WeeekHttpClient`, `WeeekSessionClient`), `SessionStore`, `TtlCache`, `PinoLogger`, `Config`.
+   - Repositories implementing domain interfaces.
+   - Generated OpenAPI types in `src/infrastructure/weeek/dto/schema.ts`.
+4. **MCP Layer (`src/mcp/`)**
+   - MCP Server initialization (`createMcpServer`), `ToolRegistry`, and individual tool definitions in `src/mcp/tools/*.ts`.
+
+## Adding a New MCP Tool
+1. **Define Application Use Case:** If new business logic is required, add a use case in `src/application/usecases/`.
+2. **Create Tool File:** Add `src/mcp/tools/<toolName>.ts` using `zod` for input schema validation.
+3. **Tool Definition Structure:**
+   ```typescript
+   import { z } from "zod";
+   import type { AppDeps } from "../deps.js";
+   import type { McpToolDefinition } from "../types.js";
+
+   export function createMyTool(deps: AppDeps): McpToolDefinition {
+     return {
+       name: "weeek_my_tool",
+       description: "Clear summary of what this tool does",
+       parameters: z.object({
+         projectId: z.number().optional().describe("Optional project ID filter"),
+       }),
+       execute: async (args) => {
+         const result = await deps.myUseCase.execute(args);
+         return {
+           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+         };
+       },
+     };
+   }
+   ```
+4. **Register Tool:** Export and include the new tool factory in `src/mcp/tools/index.ts`.
+5. **Update Dependencies:** Update `AppDeps` in `src/mcp/deps.js` if new dependencies are introduced.
+
+## Critical MCP Protocol Rules
+- **Stdout Prohibition:** NEVER use `console.log()` or write to `stdout` during MCP server operation. stdout is strictly reserved for JSON-RPC transport messages.
+- **Logging:** All log messages MUST go through `PinoLogger` configured to `process.stderr`.
+- **Read-Only Guard:** All MCP tools must remain read-only unless write support is explicitly requested and checked via `WEEEK_ALLOW_WRITE`.
+
+## OpenAPI & DTO Generation Workflow
+- Vendored OpenAPI spec lives at `openapi/weeek.json`.
+- Do NOT edit `src/infrastructure/weeek/dto/schema.ts` manually.
+- To update DTO types:
+  1. Fetch updated spec (if needed): `npm run fetch:openapi`
+  2. Regenerate types: `npm run generate:dto`
+
+## Testing & Verification
+- Unit and integration tests live alongside code as `*.test.ts`.
+- Run tests: `npm test` (`vitest run`).
+- Run typechecking: `npm run typecheck` (`tsc --noEmit`).
+- Verify build output: `npm run build` (`tsup`).

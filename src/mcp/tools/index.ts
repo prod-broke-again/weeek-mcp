@@ -9,6 +9,7 @@ import { createMyTasksTool } from "./myTasks.js";
 import { createGetTaskTool } from "./getTask.js";
 import { createGetTaskTreeTool } from "./getTaskTree.js";
 import { createGetTaskCommentsTool } from "./getTaskComments.js";
+import { createGetProjectDocumentsTool } from "./getProjectDocuments.js";
 import { createReadAttachmentTool } from "./readAttachment.js";
 import { createListMembersTool } from "./listMembers.js";
 import { createListTagsTool } from "./listTags.js";
@@ -28,6 +29,7 @@ export function registerAllTools(registry: ToolRegistry, deps: AppDeps): void {
     createListProjectsTool(deps),
     createGetProjectTool(deps),
     createGetBoardTool(deps),
+    createGetProjectDocumentsTool(deps),
     createSearchTasksTool(deps),
     createMyTasksTool(deps),
     createGetTaskTool(deps),
